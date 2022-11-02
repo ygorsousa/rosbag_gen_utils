@@ -47,35 +47,41 @@ def add_data_images(bag, bridge, rostime, path, image_files, topic, multiplier, 
         bag.write(topic, image_message, image_message.header.stamp)
         i += 1
 
-def create_bag(rgb_path, depth_path, rgb_files, depth_files, rgb_topic, depth_topic, bag_name, multiplier):
+def create_bag(bgr_path, depth_path, bgr_files, depth_files, bgr_topic, depth_topic, bag_name, out_path, multiplier):
     bridge = CvBridge()
-    rospack = rospkg.RosPack()
-    bag = rosbag.Bag(rospack.get_path('rosbag_gen_utils') + "/" + bag_name + ".bag", 'w')
+    bag = rosbag.Bag(os.path.join(out_path, bag_name + ".bag"), 'w')
     print ("Starting bag generation")
     
     rostime = rospy.get_rostime()
     
-    add_data_images(bag, bridge, rostime, rgb_path, rgb_files, rgb_topic, multiplier, "bgr8")
+    add_data_images(bag, bridge, rostime, bgr_path, bgr_files, bgr_topic, multiplier, "bgr8")
     add_data_images(bag, bridge, rostime, depth_path, depth_files, depth_topic, multiplier, "passthrough")
 
     bag.close()
     print ("Bag successfully generated")
-	
+
 
 def main(args):
-    rospy.init_node('bag_from_rgb_depth_times', anonymous=True)
-    if rospy.has_param('~rgb_images_path') and rospy.has_param('~depth_images_path') and rospy.has_param('~rgb_topic') and rospy.has_param('~depth_topic') and rospy.has_param('~bag_name'):
-        rgb_images_path = rospy.get_param('~rgb_images_path')
+    rospy.init_node('bag_from_bgr_depth_times', anonymous=True)
+    if rospy.has_param('~bgr_images_path') and rospy.has_param('~depth_images_path') and rospy.has_param('~bgr_topic') and rospy.has_param('~depth_topic') and rospy.has_param('~bag_name'):
+        bgr_images_path = rospy.get_param('~bgr_images_path')
         depth_images_path = rospy.get_param('~depth_images_path')
-        rgb_topic = rospy.get_param('~rgb_topic')
+        bgr_topic = rospy.get_param('~bgr_topic')
         depth_topic = rospy.get_param('~depth_topic')
         bag_name = rospy.get_param('~bag_name')
+        
         multiplier = 1
         if rospy.has_param('~multiplier'):
             multiplier = rospy.get_param('~multiplier')
-        rgb_files = get_files_from_dir(rgb_images_path)
+        
+        rospack = rospkg.RosPack()
+        out_path = rospack.get_path('rosbag_gen_utils') 
+        if rospy.has_param('~out_path'):
+            out_path = rospy.get_param('~out_path')
+        
+        bgr_files = get_files_from_dir(bgr_images_path)
         depth_files = get_files_from_dir(depth_images_path)
-        create_bag(rgb_images_path, depth_images_path, rgb_files, depth_files, rgb_topic, depth_topic, bag_name, multiplier)
+        create_bag(bgr_images_path, depth_images_path, bgr_files, depth_files, bgr_topic, depth_topic, bag_name, out_path, multiplier)
     else:
         print ("Error: parameter not specified")
 

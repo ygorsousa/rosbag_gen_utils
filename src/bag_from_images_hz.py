@@ -25,10 +25,9 @@ def get_files_from_dir(path):
     
     return files
 
-def create_bag(path, image_files, image_topic, frequency, bag_name, enc):
+def create_bag(path, image_files, image_topic, frequency, bag_name, enc, out_path):
     bridge = CvBridge()
-    rospack = rospkg.RosPack()
-    bag = rosbag.Bag(rospack.get_path('rosbag_gen_utils') + "/" + bag_name + ".bag", 'w')
+    bag = rosbag.Bag(os.path.join(out_path, bag_name + ".bag"), 'w')
     print ("Generating bag from {} image files".format(len(image_files)))
     time = rospy.get_rostime()
     d = rospy.Duration.from_sec(1.0/float(frequency))
@@ -62,8 +61,14 @@ def main(args):
         topic = rospy.get_param('~topic')
         bag_name = rospy.get_param('~bag_name')
         encoding = rospy.get_param('~encoding')
+        
+        rospack = rospkg.RosPack()
+        out_path = rospack.get_path('rosbag_gen_utils') 
+        if rospy.has_param('~out_path'):
+            out_path = rospy.get_param('~out_path')
+        
         image_files = get_files_from_dir(images_path)
-        create_bag(images_path, image_files, topic, frequency, bag_name, encoding)
+        create_bag(images_path, image_files, topic, frequency, bag_name, encoding, out_path)
     else:
         print ("Error: parameter not specified")
 
