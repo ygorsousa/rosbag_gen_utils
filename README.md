@@ -27,7 +27,7 @@ To generate a bag using `bag_from_images_hz`, run (pay attention to the paramete
 ```
 rosrun rosbag_gen_utils bag_from_images_hz.py _images_path:=PATH _topic:=TOPIC _frequency:=FPS _encoding:=ENC _bag_name:=NAME _out_path:=PATH_OUT
 ```
-- `PATH`: path to the sequence of image files; 
+- `PATH`: path to the sequence of image files*; 
 - `TOPIC`: topic in which the images data will be written in the rosbag (eg.: /camera/rgb/image_raw); 
 - `FPS`: number of frames (images) per second (eg.: 30); 
 - `ENC`: the encoding of the image data (eg.: bgr8); 
@@ -38,10 +38,12 @@ In a similar way, to generate a bag using the `bag_from_bgr_depth_times` node, r
 ```
 rosrun rosbag_gen_utils bag_from_bgr_depth_times.py _bgr_images_path:=PATH_BGR _depth_images_path:=PATH_DEPTH _bgr_topic:=TOPIC_BGR _depth_topic:=TOPIC_DEPTH _bag_name:=NAME _multiplier:=MULTI _out_path:=PATH_OUT
 ```
-- `PATH_BGR`: path to the sequence of bgr image files; 
-- `PATH_DEPTH`: path to the sequence of depth image files; 
+- `PATH_BGR`: path to the sequence of bgr image files*; 
+- `PATH_DEPTH`: path to the sequence of depth image files*; 
 - `TOPIC_BGR`: topic in which the bgr images data will be written in the rosbag (eg.: /camera/rgb/image_raw); 
 - `TOPIC_DEPTH`: topic in which the depth images data will be written in the rosbag (eg.: /camera/depth/image_raw); 
 - `NAME`: name of the bag file (eg.: generated-bgr-depth);
 - `MULTI`(optional, default: 1.0): a number that will decrease the frequency (FPS) of the data in the rosbag by multiplying the timestamps obtained from the image file names; 
 - `PATH_OUT`(optional, default: package root folder): path to save the `.bag` file.
+
+*Currently only .jpg, .jpeg and .png file formats are supported.
