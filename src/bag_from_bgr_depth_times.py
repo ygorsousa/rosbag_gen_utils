@@ -6,12 +6,17 @@ import cv2
 import sys
 import rosbag
 import os
+import numpy as np
 from cv_bridge import CvBridge
 
 """
 
 @author: Ygor Sousa (ycns@cin.ufpe.br)
 """
+
+def load_depth(depth):
+    depth = np.bitwise_or(np.right_shift(depth, 3), np.left_shift(depth, 16-3))
+    return depth
 
 def get_files_from_dir(path):
     print ("Getting images from directory "+ str(path))
@@ -25,13 +30,16 @@ def get_files_from_dir(path):
     
     return files
 
-def add_data_images(bag, bridge, rostime, path, image_files, topic, multiplier, encoding_data):
+def add_data_images(bag, bridge, rostime, path, image_files, topic, multiplier, encoding_data, is_depth):
     print ("- Converting and writing {} image files".format(len(image_files)))
     i = 0
     while i < len(image_files) and not rospy.is_shutdown():
         image_file = image_files[i]
 
         img_cv = cv2.imread(path + image_file, cv2.IMREAD_UNCHANGED)
+        
+        if is_depth:
+            img_cv = load_depth(img_cv)
 
         image_message = bridge.cv2_to_imgmsg(img_cv, encoding=encoding_data)
 		
@@ -54,8 +62,8 @@ def create_bag(bgr_path, depth_path, bgr_files, depth_files, bgr_topic, depth_to
     
     rostime = rospy.get_rostime()
     
-    add_data_images(bag, bridge, rostime, bgr_path, bgr_files, bgr_topic, multiplier, "bgr8")
-    add_data_images(bag, bridge, rostime, depth_path, depth_files, depth_topic, multiplier, "passthrough")
+    add_data_images(bag, bridge, rostime, bgr_path, bgr_files, bgr_topic, multiplier, "bgr8", False)
+    add_data_images(bag, bridge, rostime, depth_path, depth_files, depth_topic, multiplier, "passthrough", True)
 
     bag.close()
     print ("Bag successfully generated")
